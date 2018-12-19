@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SpeedPay</string>
+    <string name="host">http://speedpay.000webhostapp.com/speedpay_android/</string>
+</resources>
