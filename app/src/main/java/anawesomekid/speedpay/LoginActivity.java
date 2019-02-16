@@ -28,11 +28,11 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity {
 
     //String host = getString(R.string.host);
-    private EditText email, password;
+    private EditText username, password;
     private Button btn_login;
     private TextView link_regist;
     private ProgressBar loading;
-    private static String URL_LOGIN = "http://speedpay.000webhostapp.com/speedpay_android/login.php";
+    private static String URL_LOGIN = "http://www.a2k.online/SpeedPay/Android/login.php";
     SessionManager sessionManager;
 
     @Override
@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
 
         loading = findViewById(R.id.loading);
-        email = findViewById(R.id.email);
+        username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         btn_login = findViewById(R.id.btn_login);
         link_regist = findViewById(R.id.link_regist);
@@ -51,13 +51,13 @@ public class LoginActivity extends AppCompatActivity {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String mEmail = email.getText().toString().trim();
+                String mEmail = username.getText().toString().trim();
                 String mPass = password.getText().toString().trim();
 
                 if (!mEmail.isEmpty() || !mPass.isEmpty()) {
                     Login(mEmail, mPass);
                 } else {
-                    email.setError("Please insert email");
+                    username.setError("Please insert email");
                     password.setError("Please insert password");
                 }
             }
@@ -72,9 +72,9 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void Login(final String email, final String password) {
+    private void Login(final String user, final String pass) {
         loading.setVisibility(View.VISIBLE);
-        btn_login.setVisibility(View.GONE);
+        //btn_login.setVisibility(View.GONE);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_LOGIN,
                 new Response.Listener<String>() {
@@ -99,18 +99,21 @@ public class LoginActivity extends AppCompatActivity {
                                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                     intent.putExtra("name", name);
                                     intent.putExtra("email", email);
+                                    intent.putExtra("ID", id);
                                     startActivity(intent);
 
                                     loading.setVisibility(View.GONE);
 
                                 }
+                            } else {
+                                Toast.makeText(LoginActivity.this, "Invalid username or password! Please try again", Toast.LENGTH_SHORT).show();
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                             loading.setVisibility(View.GONE);
                             btn_login.setVisibility(View.VISIBLE);
-                            Toast.makeText(LoginActivity.this, "Error " +e.toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Invalid username or password! Please try again", Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -119,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         loading.setVisibility(View.GONE);
                         btn_login.setVisibility(View.VISIBLE);
-                        Toast.makeText(LoginActivity.this, "Error " +error.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Something went Wrong", Toast.LENGTH_SHORT).show();
                     }
                 })
 
@@ -127,8 +130,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("email", email);
-                params.put("password", password);
+                params.put("username", user);
+                params.put("password", pass);
                 return params;
             }
         };

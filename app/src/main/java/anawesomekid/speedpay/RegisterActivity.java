@@ -28,7 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText name, email, password, c_password;
     private Button btn_regist;
     private ProgressBar loading;
-    private static String URL_REGIST = "http://speedpay.000webhostapp.com/speedpay_android/register.php";
+    private static String URL_REGIST = "http://www.a2k.online/SpeedPay/Android/register.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if (mName.isEmpty() || mEmail.isEmpty() || mPass.isEmpty() || mcPass.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Please input all the fields Required", Toast.LENGTH_SHORT).show();
                 } else {
-                    if (mPass != mcPass) {
+                    if (!mPass.equals(mcPass)) {
                         Toast.makeText(RegisterActivity.this, "Your password is not matching", Toast.LENGTH_SHORT).show();
                     } else {
                         Regist(mName, mEmail, mPass);
@@ -86,14 +86,21 @@ public class RegisterActivity extends AppCompatActivity {
 
                             if (success.equals("1")) {
                                 Toast.makeText(RegisterActivity.this, "Register Success!", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                startActivity(intent);
+                            } else {
+
+                                Toast.makeText(RegisterActivity.this, "This credential already exists", Toast.LENGTH_SHORT).show();
+                                loading.setVisibility(View.GONE);
+                                btn_regist.setVisibility(View.VISIBLE);
+
                             }
 
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                            startActivity(intent);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            Toast.makeText(RegisterActivity.this, "Register ee! " + e.toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterActivity.this, "Something went Wrong, " + e.toString(), Toast.LENGTH_SHORT).show();
                             loading.setVisibility(View.GONE);
                             btn_regist.setVisibility(View.VISIBLE);
                         }

@@ -31,9 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,15 +42,27 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = HomeActivity.class.getSimpleName(); //use to get the info
     private TextView name, email;
-    private Button btn_Logout, btn_photo_upload;
+    private Button btn_Logout, btn_photo_upload, btn_speedpay;
     private Bitmap bitmap;
-    private static String URL_READ = "http://speedpay.000webhostapp.com/speedpay_android/read_detail.php";
     private Menu action;
-    private static String URL_EDIT = "http://speedpay.000webhostapp.com/speedpay_android/edit_detail.php";
-    private static String URL_UPLOAD = "http://speedpay.000webhostapp.com/speedpay_android/upload.php";
+
+    private static String URL_READ = "http://www.a2k.online/SpeedPay/Android/read_detail.php";
+    private static String URL_EDIT = "http://www.a2k.online/SpeedPay/Android/edit_detail.php";
+    private static String URL_UPLOAD = "http://www.a2k.online/SpeedPay/Android/upload.php";
+    private static String URL_FINE = "http://www.a2k.online/SpeedPay/Android/payment.php";
+
     CircleImageView profile_image;
     SessionManager sessionManager;
     String getID;
+
+    int[] BookID;
+    String[] BookName;
+    String[] BookDescription;
+    String[] Category;
+    String[] LendDate;
+    String[] DueDays;
+    String[] FineAmount;
+    String[] url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +75,7 @@ public class HomeActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         email = findViewById(R.id.email);
         btn_Logout = findViewById(R.id.btn_logout);
+        btn_speedpay = findViewById(R.id.btn_libarary);
         btn_photo_upload = findViewById(R.id.btn_photo);
         profile_image = findViewById(R.id.profile_image);
 
@@ -78,12 +89,111 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        btn_speedpay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                fine();
+
+            }
+        });
+
         btn_photo_upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 chooseFile();
             }
         });
+
+    }
+
+    private void fine() {
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_FINE,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+
+                            JSONObject jsonObject = new JSONObject(response);
+                            String success = jsonObject.getString("success");
+                            JSONArray jsonArray = jsonObject.getJSONArray("payment");
+                            int num = 0;
+
+                            if (success.equals("1")) {
+
+                                String[] arr = new String[jsonArray.length()];
+
+                                BookID = new int[jsonArray.length()];
+                                BookName = new String[jsonArray.length()];
+                                BookDescription = new String[jsonArray.length()];
+                                Category = new String[jsonArray.length()];
+                                LendDate = new String[jsonArray.length()];
+                                DueDays = new String[jsonArray.length()];
+                                FineAmount = new String[jsonArray.length()];
+                                url = new String[jsonArray.length()];
+
+
+                                for (int i = 0; i < jsonArray.length(); i++) {
+
+                                    JSONObject object = jsonArray.getJSONObject(i);
+
+                                    //arr[i] = object.getString("BookID").trim();
+                                    BookID[i] = object.getInt("BookID");
+                                    BookDescription[i] = object.getString("BookDescription").trim();
+                                    BookName[i] = object.getString("BookName").trim();
+                                    Category[i] = object.getString("Category").trim();
+                                    LendDate[i] = object.getString("LendDate").trim();
+                                    DueDays[i] = object.getString("DueDays").trim();
+                                    FineAmount[i] = object.getString("FineAmount").trim();
+                                    url[i] = object.getString("url").trim();
+
+                                }
+
+                                Intent intent = new Intent(HomeActivity.this, NavigationActivity.class);
+                                intent.putExtra("BookID", BookID);
+                                intent.putExtra("BookDescription", BookDescription);
+                                intent.putExtra("BookName", BookName);
+                                intent.putExtra("Category", Category);
+                                intent.putExtra("LendDate", LendDate);
+                                intent.putExtra("DueDays", DueDays);
+                                intent.putExtra("FineAmount", FineAmount);
+                                intent.putExtra("url", url);
+
+                                HomeActivity.this.startActivity(intent);
+
+                            } else {
+
+                            }
+
+                        } catch (JSONException e) {
+
+                            e.printStackTrace();
+
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        })
+
+        {
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new HashMap<>();
+                params.put("id", getID);
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
 
     }
 
